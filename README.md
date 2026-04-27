@@ -190,10 +190,10 @@ parsing, enabling deterministic top-down parsing with a single lookahead symbol
 
 ---
 
-##Implementation
+## Implementation
 
 
-####Correct Sentences:
+### Correct Sentences:
 
 `saya makan nasi .` : I eat rice.
 `dia minum air .` : He/she drinks water.
@@ -223,7 +223,7 @@ parsing, enabling deterministic top-down parsing with a single lookahead symbol
 
 `saya makan nasi dan dia minum air dan kami membaca buku .` : I eat rice and he/she drinks water and we read a book.
 
-#Incorrect Sentences:
+### Incorrect Sentences:
 
 `makan saya nasi .` : Eat I rice.
 `nasi saya makan .` : Rice I eat.

@@ -5,38 +5,36 @@
 
 ## Description
 
-Grammars are a cornerstone of computational linguistics and compiler design, providing a formal
-foundation for understanding, generating, and validating the structure of a language. A
-Context-Free Grammar (CFG) is defined as a 4-tuple G = (V, Σ, R, S), where V is a finite set of
-variables (non-terminals), Σ is a finite set of terminals disjoint from V, R is a finite set of
-production rules of the form A → α where A ∈ V and α ∈ (V ∪ Σ)*, and S ∈ V is the start symbol
-(Hopcroft et al., 2001, Chapter 5, pp. 171–175). In this evidence, a CFG is designed, cleaned,
-and implemented as a parser for a controlled subset of **Indonesian (Bahasa Indonesia)**.
+Context-Free Grammars (CFGs) provide a formal mechanism for describing the structure of a language 
+and are widely used in both computational linguistics and compiler design. A CFG defines how valid
+strings in a language can be generated through a set of production rules, making it suitable for 
+constructing parsers that validate sentence structure.
 
-Indonesian was chosen because its structure maps cleanly onto the SVO (Subject–Verb–Object) model
-that CFGs handle well. As described by Sneddon (1996, Chapters 2–4), Indonesian sentences follow a
-Subject–Verb–Object order with no verb conjugation and no grammatical gender, making it an ideal
-candidate for a controlled grammar demonstration. Tense and aspect are expressed through optional
-particles (*sudah*, *sedang*, *akan*) placed before the verb, and coordination is expressed through
-conjunctions (*dan*, *atau*).
+In this project, a CFG is designed, cleaned, and implemented to recognize a controlled subset of 
+Indonesian (Bahasa Indonesia).
 
-The grammar recognizes the following sentence structures:
+Indonesian was selected because its syntax aligns well with simple grammatical models. The language
+typically follows a Subject–Verb–Object (SVO) structure and does not use verb conjugation or 
+grammatical gender. Instead, temporal meaning is often expressed through optional particles such as 
+**sudah**, **sedang**, and **akan**, which precede the verb. Coordination is expressed using conjunctions such as
+**dan** (and) and **atau** (or) (Sneddon, 1996).
 
-- **Simple clauses:** a noun phrase (NP) followed by a verb phrase (VP), ending with a period.
-- **Coordinated sentences:** multiple clauses joined by *dan* (and) or *atau* (or) at the sentence
-  level.
-- **Noun phrases:** a single pronoun or noun, or two nouns/pronouns joined by a conjunction.
-- **Verb phrases:** an optional sequence of tense particles, followed by a verb, followed by an
-  optional object NP.
+To keep the model tractable and focused on grammar construction, the language is restricted to a 
+simplified subset with the following characteristics:
 
-The following elements are deliberately **excluded** to keep the grammar controlled and focused on
-demonstrating CFG cleaning techniques: morphological affixes (*me-*, *di-*), reduplication
-(*buku-buku*), passive voice, and complex embedded clauses.
+-- **Simple sentences:** a noun phrase (NP) followed by a verb phrase (VP), ending with a period.
+-- **Coordinated sentences:** multiple clauses joined using dan or atau.
+-- **Noun phrases:** a pronoun or noun, optionally combined with a conjunction.
+-- **Verb phrases:** an optional sequence of particles, followed by a verb and an optional object.
 
-To implement this solution, an **LL(1) parser** is used — a top-down, left-to-right parsing
-strategy that constructs a leftmost derivation using exactly one token of lookahead (Aho et al.,
-2006, Chapter 4, pp. 217–228). Arriving at an LL(1)-compatible grammar requires two cleaning
-steps: elimination of ambiguity and elimination of left recursion.
+The following elements are deliberately excluded to maintain a controlled grammar and emphasize
+syntactic structure: morphological affixes (*me-*, *di-*), reduplication (*buku-buku*), 
+passive voice, and complex embedded clauses.
+
+The initial grammar is intentionally constructed with ambiguity and left recursion. These issues 
+are then systematically removed to obtain a clean grammar compatible with an LL(1) parser, a 
+top-down parsing strategy that uses a single lookahead symbol to produce a leftmost derivation 
+(Aho et al., 2006).
 
 ---
 

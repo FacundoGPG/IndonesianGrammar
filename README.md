@@ -22,10 +22,10 @@ grammatical gender. Instead, temporal meaning is often expressed through optiona
 To keep the model tractable and focused on grammar construction, the language is restricted to a 
 simplified subset with the following characteristics:
 
--- **Simple sentences:** a noun phrase (NP) followed by a verb phrase (VP), ending with a period.
--- **Coordinated sentences:** multiple clauses joined using dan or atau.
--- **Noun phrases:** a pronoun or noun, optionally combined with a conjunction.
--- **Verb phrases:** an optional sequence of particles, followed by a verb and an optional object.
+- **Simple sentences:** a noun phrase (NP) followed by a verb phrase (VP), ending with a period.
+- **Coordinated sentences:** multiple clauses joined using dan or atau.
+- **Noun phrases:** a pronoun or noun, optionally combined with a conjunction.
+- **Verb phrases:** an optional sequence of particles, followed by a verb and an optional object.
 
 The following elements are deliberately excluded to maintain a controlled grammar and emphasize
 syntactic structure: morphological affixes (*me-*, *di-*), reduplication (*buku-buku*), 
@@ -50,61 +50,6 @@ The following terminals are defined for this grammar:
 | Particles  | *sudah, sedang, akan*                                                 | already (past), currently (progressive), will (future)    |
 | Conjunctions | *dan, atau*                                                         | and, or                                                   |
 
----
-
-# E2 — Generating and Cleaning a Restricted Context-Free Grammar
-### Indonesian Language Parser
-
----
-
-## Description
-
-Grammars are a cornerstone of computational linguistics and compiler design, providing a formal
-foundation for understanding, generating, and validating the structure of a language. A
-Context-Free Grammar (CFG) is defined as a 4-tuple G = (V, Σ, R, S), where V is a finite set of
-variables (non-terminals), Σ is a finite set of terminals disjoint from V, R is a finite set of
-production rules of the form A → α where A ∈ V and α ∈ (V ∪ Σ)*, and S ∈ V is the start symbol
-(Hopcroft et al., 2001, Chapter 5, pp. 171–175). In this evidence, a CFG is designed, cleaned,
-and implemented as a parser for a controlled subset of **Indonesian (Bahasa Indonesia)**.
-
-Indonesian was chosen because its structure maps cleanly onto the SVO (Subject–Verb–Object) model
-that CFGs handle well. As described by Sneddon (1996, Chapters 2–4), Indonesian sentences follow a
-Subject–Verb–Object order with no verb conjugation and no grammatical gender, making it an ideal
-candidate for a controlled grammar demonstration. Tense and aspect are expressed through optional
-particles (*sudah*, *sedang*, *akan*) placed before the verb, and coordination is expressed through
-conjunctions (*dan*, *atau*).
-
-The grammar recognizes the following sentence structures:
-
-- **Simple clauses:** a noun phrase (NP) followed by a verb phrase (VP), ending with a period.
-- **Coordinated sentences:** multiple clauses joined by *dan* (and) or *atau* (or) at the sentence
-  level.
-- **Noun phrases:** a single pronoun or noun, or two nouns/pronouns joined by a conjunction.
-- **Verb phrases:** an optional sequence of tense particles, followed by a verb, followed by an
-  optional object NP.
-
-The following elements are deliberately **excluded** to keep the grammar controlled and focused on
-demonstrating CFG cleaning techniques: morphological affixes (*me-*, *di-*), reduplication
-(*buku-buku*), passive voice, and complex embedded clauses.
-
-To implement this solution, an **LL(1) parser** is used — a top-down, left-to-right parsing
-strategy that constructs a leftmost derivation using exactly one token of lookahead (Aho et al.,
-2006, Chapter 4, pp. 217–228). Arriving at an LL(1)-compatible grammar requires two cleaning
-steps: elimination of ambiguity and elimination of left recursion.
-
----
-
-## Vocabulary
-
-The following terminals are defined for this grammar:
-
-| Category   | Words                                                                 | Translation                                               |
-|------------|-----------------------------------------------------------------------|-----------------------------------------------------------|
-| Pronouns   | *saya, dia, mereka, kami*                                             | I/me, he/she, they, we                                    |
-| Nouns      | *buku, nasi, air, guru, murid, kucing, anjing*                        | book, rice, water, teacher, student, cat, dog             |
-| Verbs      | *makan, minum, membaca, menulis, melihat*                             | eat, drink, read, write, see                              |
-| Particles  | *sudah, sedang, akan*                                                 | already (past), currently (progressive), will (future)    |
-| Conjunctions | *dan, atau*                                                         | and, or                                                   |
 
 ---
 

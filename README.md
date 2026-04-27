@@ -186,36 +186,7 @@ This grammar is unambiguous, free of left recursion, and structured to be compat
 parsing, enabling deterministic top-down parsing with a single lookahead symbol
 (Aho et al., 2006, Chapter 4, pp. 224–227).
 
-**Example derivations:**
-
-*saya makan nasi .*
-```
-S → S_atau '.' → S_dan S_atau_A '.'
-  → Clause S_dan_A S_atau_A '.'
-  → NP VP ε ε '.'
-  → Pronoun VP '.' → saya Verb NP '.'
-  → saya makan nasi .   ✅
-```
-
-*dia sedang membaca buku .*
-```
-S → ... → Clause ε ε '.'
-  → NP VP '.' → dia Particle VP '.'
-  → dia sedang Verb NP '.'
-  → dia sedang membaca buku .   ✅
-```
-
-*saya makan nasi dan dia minum air atau mereka melihat buku .*
-```
-S_atau → S_dan S_atau_A
-S_dan  → Clause S_dan_A        [saya makan nasi]
-S_dan_A→ 'dan' Clause S_dan_A  [dan dia minum air] → ε
-S_atau_A→ 'atau' S_dan S_atau_A [atau mereka melihat buku] → ε   ✅
-```
-
-*makan saya nasi .* — `'makan' ∉ Pronoun ∪ Noun`, NP fails immediately.
-
-> *[Paste syntactic tree diagrams here for each accepted sentence above.]*
+<img width="545" height="287" alt="Tree_Stage3" src="https://github.com/user-attachments/assets/ac5c3441-01af-434c-b30b-caa1dbe08c1f" />
 
 ---
 

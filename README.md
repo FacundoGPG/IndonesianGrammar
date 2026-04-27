@@ -167,6 +167,8 @@ This string can be parsed in two structurally different ways:
 
 - **Tree B:** `(saya makan nasi) dan (dia minum air atau mereka melihat buku)`
 
+<img width="608" height="217" alt="TreeB_stage1" src="https://github.com/user-attachments/assets/2d6d05ca-50a7-4207-96e8-5417b28ae64c" />
+
 
 Both derivations are valid under `S → S Conj S`, making the grammar ambiguous. The same
 ambiguity arises in `NP → NP Conj NP`, where coordinated noun phrases can be grouped in

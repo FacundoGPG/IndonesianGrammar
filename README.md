@@ -192,64 +192,104 @@ parsing, enabling deterministic top-down parsing with a single lookahead symbol
 
 ## Implementation
 
+The parser is implemented in Python using the Natural Language Toolkit (NLTK), which provides
+utilities for working with context-free grammars. Two files are used:
 
-### Correct Sentences:
+- `grammar.py` — defines the Stage 3 grammar, the NLTK `ChartParser`, and a `parse_sentence()`
+  function used by the interface.
+- `test_grammar.py` — an interactive interface where the user types a sentence and the parser
+  responds with ACCEPTED or REJECTED, printing the parse tree on success.
 
-`saya makan nasi .` : I eat rice.
-`dia minum air .` : He/she drinks water.
-`kami membaca buku .` : We read a book.
-`guru menulis buku .` : The teacher writes a book.
-`murid melihat kucing .` : The student sees a cat.
+**How to run:**
 
-`saya makan .` : I eat.
-`dia minum .` : He/she drinks.
-`mereka membaca .` : They read.
+```bash
+pip install nltk
+python test_grammar.py
+```
 
-`saya sudah makan nasi .` : I already ate rice.
-`dia sedang membaca buku .` : He/she is reading a book.
-`kami akan minum air .` : We will drink water.
-`guru sedang menulis .` : The teacher is writing.
+Type any sentence using the vocabulary above and end it with a period. Type `exit` to quit.
 
-`saya sudah akan makan nasi .` : I already will eat rice.
+**Note on grammar adaptation:** NLTK's `CFG.fromstring()` does not reliably support ε-productions
+(empty rules) across versions, these were rewritten as explicit alternatives. For example, instead of `S_atau_A → 'atau' S_dan S_atau_A | ε`, the grammar uses `S_atau_A → 'atau' S_dan S_atau_A | 'atau' S_dan`. This
+does not change the language recognized by the grammar.
 
-`saya dan dia makan nasi .` : I and he/she eat rice.
-`guru dan murid membaca buku .` : The teacher and the student read a book.
-`kucing atau anjing minum air .` : The cat or the dog drinks water.
+### Sentences accepted by the grammar
 
-`saya makan nasi dan dia minum air .` : I eat rice and he/she drinks water.
-`saya makan nasi atau dia minum air .` : I eat rice or he/she drinks water.
+| Sentence | Translation |
+|---|---|
+| `saya makan nasi .` | I eat rice. |
+| `dia minum air .` | He/she drinks water. |
+| `kami membaca buku .` | We read a book. |
+| `guru menulis buku .` | The teacher writes a book. |
+| `murid melihat kucing .` | The student sees a cat. |
+| `saya makan .` | I eat. (intransitive) |
+| `dia minum .` | He/she drinks. |
+| `mereka membaca .` | They read. |
+| `saya sudah makan nasi .` | I already ate rice. |
+| `dia sedang membaca buku .` | He/she is reading a book. |
+| `kami akan minum air .` | We will drink water. |
+| `guru sedang menulis .` | The teacher is writing. |
+| `saya sudah akan makan nasi .` | I already will eat rice. (stacked particles) |
+| `guru dan murid membaca buku .` | The teacher and the student read a book. |
+| `kucing atau anjing minum air .` | The cat or the dog drinks water. |
+| `saya makan nasi dan dia minum air .` | I eat rice and he/she drinks water. |
+| `saya makan nasi atau dia minum air .` | I eat rice or he/she drinks water. |
+| `saya makan nasi dan dia minum air atau mereka melihat buku .` | dan binds before atau. |
+| `saya makan nasi dan dia minum air dan kami membaca buku .` | Three clauses with dan. |
 
-`saya makan nasi dan dia minum air atau mereka melihat buku .` : I eat rice and he/she drinks water or they see a book.
+### Sentences rejected by the grammar
 
-`saya makan nasi dan dia minum air dan kami membaca buku .` : I eat rice and he/she drinks water and we read a book.
+| Sentence | Reason |
+|---|---|
+| `makan saya nasi .` | Verb-first — violates SVO |
+| `nasi saya makan .` | Object-first — violates SVO |
+| `saya makan nasi` | No period at end |
+| `saya berlari .` | Unknown verb *berlari* |
+| `kupu makan nasi .` | Unknown noun *kupu* |
+| `saya makan nasi dan .` | Dangling conjunction, no second clause |
+| `atau saya makan nasi .` | Sentence starts with conjunction |
+| `saya makan sudah nasi .` | Particle after verb — wrong order |
+| `.` | Punctuation only |
+| `saya .` | No verb |
+| `makan .` | No subject |
+| `saya makan nasi . .` | Double period |
 
-### Incorrect Sentences:
+---
 
-`makan saya nasi .` : Eat I rice.
-`nasi saya makan .` : Rice I eat.
-`minum dia air .` : Drink he/she water.
+## Analysis
 
-`saya makan nasi` : I eat rice
-`dia minum air` : He/she drinks water
+### Chomsky Hierarchy — Before Cleaning (Stage 1)
 
-`saya berlari .` : I run.
-`kupu makan nasi .` : Butterfly eats rice.
+The Stage 1 grammar belongs to **Type 2 — Context-Free** in the Chomsky hierarchy
+(Hopcroft et al., 2001, Chapter 7, Section 7.1.5, pp. 272–277). Every production rule has
+exactly one non-terminal on the left-hand side and a sequence of terminals and/or non-terminals
+on the right-hand side. No rule is conditioned on surrounding context. However, the grammar is
+not **Type 3 (Regular)** because rules such as `S → S Conj S` and `VP → Particle VP` require
+a stack to track recursive structure — something a finite automaton cannot do.
 
-`saya makan nasi dan .` : I eat rice and...
-`atau saya makan nasi .` : Or I eat rice.
-`saya dan makan nasi .` : I and eat rice.
+The grammar is also ambiguous, making it unsuitable for deterministic parsing.
 
-`saya makan sudah nasi .` : I eat already rice.
-`dia minum akan air .` : He/she drinks will water.
+### Chomsky Hierarchy — After Cleaning (Stage 3)
 
-`.` : (only punctuation)
-`saya .` : I.
-`makan .` : eat.
+The final grammar remains **Type 2 — Context-Free**. Eliminating ambiguity and left recursion
+does not change the language, only the structure of the grammar. All strings accepted before
+are still accepted after cleaning.
 
-`saya makan nasi . .` : I eat rice ..
+What does change is that the grammar becomes compatible with LL(1) parsing, enabling
+deterministic top-down parsing.
 
-`minum makan nasi .` : drink eat rice.
+### Time Complexity by Chomsky Level
 
+| Type | Class | Parser | Time complexity | Example string |
+|---|---|---|---|---|
+| Type 3 | Regular | DFA / NFA | O(n) | `aababab` matched by `(ab)*` |
+| Type 2 | Context-Free | LL(1), LR(1), Earley, CYK | O(n) to O(n³) | `saya makan nasi .` |
+| Type 1 | Context-Sensitive | LBA | O(n²) to exponential | `aⁿbⁿcⁿ` |
+| Type 0 | Recursively Enumerable | Turing machine | Undecidable in general | Any computable string |
+
+The NLTK ChartParser (Earley-based) runs in O(n³) in the worst case. However, since the
+final grammar is unambiguous and free of left recursion, parsing is efficient in practice for
+the restricted sentences used in this project (Aho et al., 2006, Chapter 4, pp. 217–228).
 
 ---
 
@@ -259,6 +299,7 @@ Aho, A. V., Lam, M. S., Sethi, R., & Ullman, J. D. (2006). *Compilers: Principle
 and tools* (2nd ed.). Pearson/Addison-Wesley. Chapter 4, pp. 212–213, 217–228, 220–224, 224–227.
 
 Hopcroft, J. E., Motwani, R., & Ullman, J. D. (2001). *Introduction to automata theory,
-languages, and computation* (2nd ed.). Addison-Wesley. Chapter 5, pp. 171–175, 184–187.
+languages, and computation* (2nd ed.). Addison-Wesley. Chapter 5, pp. 171–175, 184–187;
+Chapter 7, Section 7.1.5, pp. 272–277.
 
 Sneddon, J. N. (1996). *Indonesian: A comprehensive grammar*. Routledge. Chapters 2–4.

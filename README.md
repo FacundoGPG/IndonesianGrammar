@@ -172,11 +172,10 @@ This string can be parsed in two structurally different ways:
 
 Both derivations are valid under `S → S Conj S`, making the grammar ambiguous. The same
 ambiguity arises in `NP → NP Conj NP`, where coordinated noun phrases can be grouped in
-multiple ways — for example, `saya dan dia atau mereka` can be read as
-`(saya dan dia) atau mereka` or `saya dan (dia atau mereka)`.
+multiple ways. For example, "saya dan dia atau mereka" can be read as
+"(saya dan dia) atau mereka" or "saya dan (dia atau mereka)".
 
-> *[Paste your two full syntactic tree diagrams here — Tree A and Tree B for the ambiguous
-> sentence above.]*
+
 
 **Problem 2 — Left recursion.** A grammar has direct left recursion when a non-terminal A has a
 production of the form `A → A α` (Aho et al., 2006, Chapter 4, pp. 212–213). Both `S → S Conj S`

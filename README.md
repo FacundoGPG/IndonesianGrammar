@@ -162,18 +162,11 @@ by more than one distinct parse tree (Hopcroft et al., 2001, Chapter 5, pp. 184�
 This string can be parsed in two structurally different ways:
 
 - **Tree A:** `(saya makan nasi dan dia minum air) atau (mereka melihat buku)`
+
+<img width="670" height="217" alt="TreeA_stage1" src="https://github.com/user-attachments/assets/0c279f3f-d298-4908-aec1-f50961b1c222" />
+
 - **Tree B:** `(saya makan nasi) dan (dia minum air atau mereka melihat buku)`
 
-```
-Tree A                              Tree B
-        S                                   S
-      / | \                               / | \
-     S Conj  S                           S Conj  S
-   / | \  atau  |                        |  dan / | \
-  S Conj Clause .                      Clause     S Conj  S
-  |  dan   |                             |        |  atau  |
-Clause  NP VP                          NP VP    Clause   Clause
-```
 
 Both derivations are valid under `S → S Conj S`, making the grammar ambiguous. The same
 ambiguity arises in `NP → NP Conj NP`, where coordinated noun phrases can be grouped in

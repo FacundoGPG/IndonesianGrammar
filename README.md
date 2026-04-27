@@ -190,6 +190,65 @@ parsing, enabling deterministic top-down parsing with a single lookahead symbol
 
 ---
 
+##Implementation
+
+#Correct Sentences:
+saya makan nasi . : I eat rice.
+dia minum air . : He/she drinks water.
+kami membaca buku . : We read a book.
+guru menulis buku . : The teacher writes a book.
+murid melihat kucing . : The student sees a cat.
+
+saya makan . : I eat.
+dia minum . : He/she drinks.
+mereka membaca . : They read.
+
+saya sudah makan nasi . : I already ate rice.
+dia sedang membaca buku . : He/she is reading a book.
+kami akan minum air . : We will drink water.
+guru sedang menulis . : The teacher is writing.
+
+saya sudah akan makan nasi . : I already will eat rice.
+
+saya dan dia makan nasi . : I and he/she eat rice.
+guru dan murid membaca buku . : The teacher and the student read a book.
+kucing atau anjing minum air . : The cat or the dog drinks water.
+
+saya makan nasi dan dia minum air . : I eat rice and he/she drinks water.
+saya makan nasi atau dia minum air . : I eat rice or he/she drinks water.
+
+saya makan nasi dan dia minum air atau mereka melihat buku . : I eat rice and he/she drinks water or they see a book.
+
+saya makan nasi dan dia minum air dan kami membaca buku . : I eat rice and he/she drinks water and we read a book.
+
+#Incorrect Sentences:
+
+makan saya nasi . : Eat I rice.
+nasi saya makan . : Rice I eat.
+minum dia air . : Drink he/she water.
+
+saya makan nasi : I eat rice
+dia minum air : He/she drinks water
+
+saya berlari . : I run.
+kupu makan nasi . : Butterfly eats rice.
+
+saya makan nasi dan . : I eat rice and...
+atau saya makan nasi . : Or I eat rice.
+saya dan makan nasi . : I and eat rice.
+
+saya makan sudah nasi . : I eat already rice.
+dia minum akan air . : He/she drinks will water.
+
+. : (only punctuation)
+saya . : I.
+makan . : eat.
+
+saya makan nasi . . : I eat rice ..
+
+minum makan nasi . : drink eat rice.
+---
+
 ## References
 
 Aho, A. V., Lam, M. S., Sethi, R., & Ullman, J. D. (2006). *Compilers: Principles, techniques,

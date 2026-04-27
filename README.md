@@ -196,7 +196,6 @@ Aho, A. V., Lam, M. S., Sethi, R., & Ullman, J. D. (2006). *Compilers: Principle
 and tools* (2nd ed.). Pearson/Addison-Wesley. Chapter 4, pp. 212–213, 217–228, 220–224, 224–227.
 
 Hopcroft, J. E., Motwani, R., & Ullman, J. D. (2001). *Introduction to automata theory,
-languages, and computation* (2nd ed.). Addison-Wesley. Chapter 5, pp. 171–175, 184–187;
-Chapter 7, Section 7.1.5, pp. 272–277.
+languages, and computation* (2nd ed.). Addison-Wesley. Chapter 5, pp. 171–175, 184–187.
 
 Sneddon, J. N. (1996). *Indonesian: A comprehensive grammar*. Routledge. Chapters 2–4.

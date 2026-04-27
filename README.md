@@ -16,7 +16,7 @@ Indonesian (Bahasa Indonesia).
 Indonesian was selected because its syntax aligns well with simple grammatical models. The language
 typically follows a Subject–Verb–Object (SVO) structure and does not use verb conjugation or 
 grammatical gender. Instead, temporal meaning is often expressed through optional particles such as 
-**sudah**, **sedang**, and **akan**, which precede the verb. Coordination is expressed using conjunctions such as
+sudah (already), sedang (currently/in progress), and akan (will), which precede the verb. Coordination is expressed using conjunctions such as
 **dan** (and) and **atau** (or) (Sneddon, 1996).
 
 To keep the model tractable and focused on grammar construction, the language is restricted to a 
@@ -87,7 +87,7 @@ This grammar has two problems that prevent LL(1) parsing:
 **Ambiguity** — `S → S Conj S` allows the same string to produce two parse trees
 (Hopcroft et al., 2001, Chapter 5, pp. 184–187). For example:
 
-> *saya makan nasi dan dia minum air atau mereka melihat buku .*
+> *saya makan nasi dan dia minum air atau mereka melihat buku .* (*I eat rice and he/she drinks water or they see a book.*)
 
 - **Tree A:** `(saya makan nasi  dan  dia minum air)  atau  (mereka melihat buku)`
 

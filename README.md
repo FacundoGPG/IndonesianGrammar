@@ -52,6 +52,62 @@ The following terminals are defined for this grammar:
 
 ---
 
+# E2 — Generating and Cleaning a Restricted Context-Free Grammar
+### Indonesian Language Parser
+
+---
+
+## Description
+
+Grammars are a cornerstone of computational linguistics and compiler design, providing a formal
+foundation for understanding, generating, and validating the structure of a language. A
+Context-Free Grammar (CFG) is defined as a 4-tuple G = (V, Σ, R, S), where V is a finite set of
+variables (non-terminals), Σ is a finite set of terminals disjoint from V, R is a finite set of
+production rules of the form A → α where A ∈ V and α ∈ (V ∪ Σ)*, and S ∈ V is the start symbol
+(Hopcroft et al., 2001, Chapter 5, pp. 171–175). In this evidence, a CFG is designed, cleaned,
+and implemented as a parser for a controlled subset of **Indonesian (Bahasa Indonesia)**.
+
+Indonesian was chosen because its structure maps cleanly onto the SVO (Subject–Verb–Object) model
+that CFGs handle well. As described by Sneddon (1996, Chapters 2–4), Indonesian sentences follow a
+Subject–Verb–Object order with no verb conjugation and no grammatical gender, making it an ideal
+candidate for a controlled grammar demonstration. Tense and aspect are expressed through optional
+particles (*sudah*, *sedang*, *akan*) placed before the verb, and coordination is expressed through
+conjunctions (*dan*, *atau*).
+
+The grammar recognizes the following sentence structures:
+
+- **Simple clauses:** a noun phrase (NP) followed by a verb phrase (VP), ending with a period.
+- **Coordinated sentences:** multiple clauses joined by *dan* (and) or *atau* (or) at the sentence
+  level.
+- **Noun phrases:** a single pronoun or noun, or two nouns/pronouns joined by a conjunction.
+- **Verb phrases:** an optional sequence of tense particles, followed by a verb, followed by an
+  optional object NP.
+
+The following elements are deliberately **excluded** to keep the grammar controlled and focused on
+demonstrating CFG cleaning techniques: morphological affixes (*me-*, *di-*), reduplication
+(*buku-buku*), passive voice, and complex embedded clauses.
+
+To implement this solution, an **LL(1) parser** is used — a top-down, left-to-right parsing
+strategy that constructs a leftmost derivation using exactly one token of lookahead (Aho et al.,
+2006, Chapter 4, pp. 217–228). Arriving at an LL(1)-compatible grammar requires two cleaning
+steps: elimination of ambiguity and elimination of left recursion.
+
+---
+
+## Vocabulary
+
+The following terminals are defined for this grammar:
+
+| Category   | Words                                                                 | Translation                                               |
+|------------|-----------------------------------------------------------------------|-----------------------------------------------------------|
+| Pronouns   | *saya, dia, mereka, kami*                                             | I/me, he/she, they, we                                    |
+| Nouns      | *buku, nasi, air, guru, murid, kucing, anjing*                        | book, rice, water, teacher, student, cat, dog             |
+| Verbs      | *makan, minum, membaca, menulis, melihat*                             | eat, drink, read, write, see                              |
+| Particles  | *sudah, sedang, akan*                                                 | already (past), currently (progressive), will (future)    |
+| Conjunctions | *dan, atau*                                                         | and, or                                                   |
+
+---
+
 ## Models
 
 The grammar is constructed in three stages. Each stage addresses a specific formal property
@@ -62,12 +118,15 @@ eliminate left recursion.
 
 ### Stage 1 — Initial Grammar
 
-The initial grammar captures the intended language structure directly and intuitively:
+The initial grammar captures the intended language structure directly and intuitively. The period
+is enforced only at the top level through a separate `Clause` non-terminal, keeping sentence
+composition and punctuation cleanly separated:
 
 ```
-S       → S Conj S | NP VP '.'
-NP      → NP Conj NP | Pronoun | Noun
-VP      → Particle VP | Verb NP | Verb
+S      → S Conj S | Clause '.'
+Clause → NP VP
+NP     → NP Conj NP | Pronoun | Noun
+VP     → Particle VP | Verb NP | Verb
 
 Pronoun  → 'saya' | 'dia' | 'mereka' | 'kami'
 Noun     → 'buku' | 'nasi' | 'air' | 'guru' | 'murid' | 'kucing' | 'anjing'
@@ -76,7 +135,7 @@ Particle → 'sudah' | 'sedang' | 'akan'
 Conj     → 'dan' | 'atau'
 ```
 
-**Non-terminals:** S, NP, VP, Pronoun, Noun, Verb, Particle, Conj
+**Non-terminals:** S, Clause, NP, VP, Pronoun, Noun, Verb, Particle, Conj
 
 **Terminals:** 'saya', 'dia', 'mereka', 'kami', 'buku', 'nasi', 'air', 'guru', 'murid',
 'kucing', 'anjing', 'makan', 'minum', 'membaca', 'menulis', 'melihat', 'sudah', 'sedang',
@@ -98,31 +157,43 @@ from being used as an LL(1) parser.
 by more than one distinct parse tree (Hopcroft et al., 2001, Chapter 5, pp. 184–187). The rule
 `S → S Conj S` creates exactly this problem. Consider the sentence:
 
-> *saya makan nasi . dan dia minum air . atau mereka melihat buku .*
+> *saya makan nasi dan dia minum air atau mereka melihat buku .*
 
-This string can be parsed in two different ways:
+This string can be parsed in two structurally different ways:
 
-- **Tree A:** `(saya makan nasi . dan dia minum air .) atau (mereka melihat buku .)`
-- **Tree B:** `(saya makan nasi .) dan (dia minum air . atau mereka melihat buku .)`
+- **Tree A:** `(saya makan nasi dan dia minum air) atau (mereka melihat buku)`
+- **Tree B:** `(saya makan nasi) dan (dia minum air atau mereka melihat buku)`
 
-Both derivations are valid under `S → S Conj S`, making the grammar ambiguous. The same problem
-exists in `NP → NP Conj NP`.
+```
+Tree A                              Tree B
+        S                                   S
+      / | \                               / | \
+     S Conj  S                           S Conj  S
+   / | \  atau  |                        |  dan / | \
+  S Conj Clause .                      Clause     S Conj  S
+  |  dan   |                             |        |  atau  |
+Clause  NP VP                          NP VP    Clause   Clause
+```
+
+Both derivations are valid under `S → S Conj S`, making the grammar ambiguous. The same
+ambiguity arises in `NP → NP Conj NP`, where coordinated noun phrases can be grouped in
+multiple ways — for example, `saya dan dia atau mereka` can be read as
+`(saya dan dia) atau mereka` or `saya dan (dia atau mereka)`.
+
+> *[Paste your two full syntactic tree diagrams here — Tree A and Tree B for the ambiguous
+> sentence above.]*
 
 **Problem 2 — Left recursion.** A grammar has direct left recursion when a non-terminal A has a
 production of the form `A → A α` (Aho et al., 2006, Chapter 4, pp. 212–213). Both `S → S Conj S`
 and `NP → NP Conj NP` exhibit this. Left recursion causes top-down parsers to loop infinitely,
-since parsing S requires first parsing S, which requires parsing S again — never consuming any
-input.
+since expanding S immediately requires expanding S again — without consuming any input token.
 
 ---
 
 ### Stage 2 — Elimination of Ambiguity
 
-> *[Paste your syntactic tree diagrams here — one showing Tree A, one showing Tree B for the
-> ambiguous sentence, to illustrate the problem visually before presenting the fix.]*
-
 Ambiguity is eliminated by introducing **precedence levels** among conjunctions, mirroring the
-standard technique used in arithmetic grammar design (Aho et al., 2006, Chapter 4, pp. 217–228).
+standard technique used in expression grammar design (Aho et al., 2006, Chapter 4, pp. 217–228).
 The conjunction *dan* (and) is assigned higher binding precedence than *atau* (or), so *dan*
 groups its operands before *atau* does. This is achieved by splitting S into two intermediate
 non-terminals:
@@ -130,16 +201,18 @@ non-terminals:
 - `S_atau` handles *atau*-level coordination (lowest precedence, evaluated last)
 - `S_dan` handles *dan*-level coordination (higher precedence, evaluated first)
 
-For NP, ambiguity is resolved by making NP non-recursive — instead of `NP → NP Conj NP`, the
-allowed forms are enumerated explicitly, removing the structural choice that caused multiple trees.
+For NP, ambiguity is resolved by enumerating the allowed NP forms explicitly rather than using
+a recursive rule. This removes recursive coordination within NP, preventing multiple groupings
+such as `(saya dan dia) atau mereka` vs `saya dan (dia atau mereka)`.
 
 ```
-S       → S_atau '.'
-S_atau  → S_atau 'atau' S_dan | S_dan
-S_dan   → S_dan 'dan' NP VP | NP VP
+S      → S_atau '.'
+S_atau → S_atau 'atau' S_dan | S_dan
+S_dan  → S_dan 'dan' Clause | Clause
+Clause → NP VP
 
-NP      → Pronoun | Noun | Pronoun Conj Pronoun | Noun Conj Noun
-VP      → VP Particle | Verb NP | Verb
+NP     → Pronoun | Noun | Pronoun Conj Pronoun | Noun Conj Noun
+VP     → Particle VP | Verb NP | Verb
 
 Pronoun  → 'saya' | 'dia' | 'mereka' | 'kami'
 Noun     → 'buku' | 'nasi' | 'air' | 'guru' | 'murid' | 'kucing' | 'anjing'
@@ -148,51 +221,49 @@ Particle → 'sudah' | 'sedang' | 'akan'
 Conj     → 'dan' | 'atau'
 ```
 
-Now the sentence *saya makan nasi . dan dia minum air . atau mereka melihat buku .* has **exactly
-one parse tree:** `S_atau` resolves *atau* last, so *dan* binds the first two clauses before
-*atau* joins the third. Ambiguity has been removed.
+Now the sentence *saya makan nasi dan dia minum air atau mereka melihat buku .* has **exactly
+one parse tree:** `S_dan` binds the first two clauses together first, then `S_atau` joins the
+result with the third clause. The structural ambiguity is gone.
 
-> *[Paste your syntactic tree diagram here — the single unambiguous parse tree for the example
-> sentence above, showing how S_atau and S_dan enforce precedence.]*
+> *[Paste your single unambiguous parse tree here for the sentence above, showing S_atau and
+> S_dan enforcing precedence.]*
 
-**Problem remaining — left recursion.** Although ambiguity is gone, the grammar now has **direct
-left recursion** in two rules (Aho et al., 2006, Chapter 4, pp. 212–213):
+**Problem remaining — left recursion.** Although ambiguity is resolved, the grammar now has
+**direct left recursion** in three rules (Aho et al., 2006, Chapter 4, pp. 212–213):
 
-- `S_atau → S_atau 'atau' S_dan` — S_atau calls itself on the left
-- `S_dan  → S_dan 'dan' NP VP` — S_dan calls itself on the left
-- `VP     → VP Particle` — VP calls itself on the left
+- `S_atau → S_atau 'atau' S_dan` — S_atau calls itself as its first symbol
+- `S_dan  → S_dan 'dan' Clause` — S_dan calls itself as its first symbol
+- `VP     → Particle VP` is right-recursive (acceptable), but `Verb` rules are fine too —
+  no left recursion in VP ✅
 
-A top-down LL(1) parser attempting to expand `S_atau` would immediately try to expand `S_atau`
-again, entering an infinite loop without consuming any input. Left recursion must be eliminated
-before this grammar can be used as an LL(1) parser.
+A top-down LL(1) parser attempting to expand `S_atau` would immediately attempt to expand
+`S_atau` again, looping infinitely without consuming any input. Left recursion must be
+eliminated before this grammar qualifies as LL(1).
 
 ---
 
-### Stage 3 — Elimination of Left Recursion (Final LL(1) Grammar)
-
-> *[Paste your syntactic tree diagram here — the parse tree from Stage 2 redrawn after left
-> recursion elimination, showing the new S_atau_A and S_dan_A prime non-terminals.]*
+### Stage 3 — Elimination of Left Recursion (Final Grammar)
 
 The standard algorithm for eliminating direct left recursion (Aho et al., 2006, Chapter 4,
-pp. 212–213) states that for any rule of the form:
+pp. 212–213) transforms any rule of the form:
 
 ```
-A → A α₁ | A α₂ | ... | β₁ | β₂ | ...
+A → A α | β
 ```
 
-it is replaced by:
+into:
 
 ```
-A  → β₁ A' | β₂ A' | ...
-A' → α₁ A' | α₂ A' | ε
+A  → β A'
+A' → α A' | ε
 ```
 
-where A' is a new non-terminal. This preserves the language recognized while removing the
-left-recursive structure.
+where `A'` is a fresh non-terminal and `ε` denotes the empty string. This preserves the
+language recognized by the grammar while removing the left-recursive structure.
 
-**Applying the algorithm to each left-recursive rule:**
+**Applying the algorithm step by step:**
 
-**Rule: `S_atau → S_atau 'atau' S_dan | S_dan`**
+**Rule 1: `S_atau → S_atau 'atau' S_dan | S_dan`**
 
 Here `α = 'atau' S_dan` and `β = S_dan`:
 
@@ -201,36 +272,32 @@ S_atau   → S_dan S_atau_A
 S_atau_A → 'atau' S_dan S_atau_A | ε
 ```
 
-**Rule: `S_dan → S_dan 'dan' NP VP | NP VP`**
+**Rule 2: `S_dan → S_dan 'dan' Clause | Clause`**
 
-Here `α = 'dan' NP VP` and `β = NP VP`:
-
-```
-S_dan   → NP VP S_dan_A
-S_dan_A → 'dan' NP VP S_dan_A | ε
-```
-
-**Rule: `VP → VP Particle | Verb NP | Verb`**
-
-Here `α = Particle` and `β = Verb NP | Verb`:
+Here `α = 'dan' Clause` and `β = Clause`:
 
 ```
-VP   → Verb NP VP_A | Verb VP_A
-VP_A → Particle VP_A | ε
+S_dan   → Clause S_dan_A
+S_dan_A → 'dan' Clause S_dan_A | ε
 ```
 
-**Final grammar after elimination of left recursion:**
+All other rules are checked and confirmed free of left recursion:
+- `Clause → NP VP` — starts with NP ✅
+- `NP → Pronoun | Noun | ...` — starts with terminals ✅
+- `VP → Particle VP | Verb NP | Verb` — starts with Particle or Verb (terminals) ✅
+
+**Final grammar:**
 
 ```
 S        → S_atau '.'
 S_atau   → S_dan S_atau_A
 S_atau_A → 'atau' S_dan S_atau_A | ε
-S_dan    → NP VP S_dan_A
-S_dan_A  → 'dan' NP VP S_dan_A | ε
+S_dan    → Clause S_dan_A
+S_dan_A  → 'dan' Clause S_dan_A | ε
+Clause   → NP VP
 
 NP       → Pronoun | Noun | Pronoun Conj Pronoun | Noun Conj Noun
-VP       → Verb NP VP_A | Verb VP_A
-VP_A     → Particle VP_A | ε
+VP       → Particle VP | Verb NP | Verb
 
 Pronoun  → 'saya' | 'dia' | 'mereka' | 'kami'
 Noun     → 'buku' | 'nasi' | 'air' | 'guru' | 'murid' | 'kucing' | 'anjing'
@@ -239,12 +306,9 @@ Particle → 'sudah' | 'sedang' | 'akan'
 Conj     → 'dan' | 'atau'
 ```
 
-This grammar is:
-- **Unambiguous** — every valid string has exactly one parse tree.
-- **Free of left recursion** — every rule begins with a terminal or a non-terminal that cannot
-  loop back to itself on the left.
-- **LL(1)-compatible** — a top-down parser can always decide which production to apply using one
-  token of lookahead (Aho et al., 2006, Chapter 4, pp. 224–227).
+This grammar is unambiguous, free of left recursion, and structured to be compatible with LL(1)
+parsing, as it eliminates ambiguity and left recursion, enabling deterministic top-down parsing
+with a single lookahead symbol (Aho et al., 2006, Chapter 4, pp. 224–227).
 
 **Example derivations:**
 
@@ -252,48 +316,51 @@ This grammar is:
 ```
 S        → S_atau '.'
 S_atau   → S_dan S_atau_A
-S_dan    → NP VP S_dan_A
-NP       → Pronoun → saya
-VP       → Verb NP VP_A → makan Noun VP_A → makan nasi VP_A → makan nasi ε
+S_dan    → Clause S_dan_A
+Clause   → NP VP
+NP       → Pronoun → 'saya'
+VP       → Verb NP → 'makan' Noun → 'makan' 'nasi'
 S_dan_A  → ε
 S_atau_A → ε
-Result   → saya makan nasi .  
+Result   → saya makan nasi .   ✅
 ```
 
 *dia sedang membaca buku .*
 ```
 S        → S_atau '.'
 S_atau   → S_dan S_atau_A
-S_dan    → NP VP S_dan_A
-NP       → Pronoun → dia
-VP       → Verb NP VP_A → membaca buku VP_A → membaca buku VP_A
-VP_A     → Particle VP_A → sedang VP_A → sedang ε
-
-  Note: particles trail the verb in this VP formulation.
-  In the NLTK implementation this is reordered — see Implementation section.
-
+S_dan    → Clause S_dan_A
+Clause   → NP VP
+NP       → Pronoun → 'dia'
+VP       → Particle VP → 'sedang' VP → 'sedang' Verb NP → 'sedang' 'membaca' 'buku'
 S_dan_A  → ε
 S_atau_A → ε
-Result   → dia membaca buku sedang .
-
-  (In Stage 3 the particle position is before the verb — see Implementation note.)
+Result   → dia sedang membaca buku .   ✅
 ```
 
-*makan saya nasi .* — rejected
+*saya makan nasi dan dia minum air atau mereka melihat buku .*
+```
+S        → S_atau '.'
+S_atau   → S_dan S_atau_A
+S_dan    → Clause S_dan_A           [saya makan nasi]
+S_dan_A  → 'dan' Clause S_dan_A     [dan dia minum air]
+S_dan_A  → ε
+S_atau_A → 'atau' S_dan S_atau_A    [atau mereka melihat buku]
+S_atau_A → ε
+Result   → saya makan nasi dan dia minum air atau mereka melihat buku .   ✅
+```
+
+*makan saya nasi .* — rejected (verb cannot begin an NP or Clause)
 ```
 S_atau → S_dan S_atau_A
-S_dan  → NP VP S_dan_A
+S_dan  → Clause S_dan_A
+Clause → NP VP
 NP     → Pronoun | Noun | Pronoun Conj Pronoun | Noun Conj Noun
-'makan' ∉ Pronoun ∪ Noun  
+'makan' ∉ {Pronoun terminals} ∪ {Noun terminals}   ❌
 ```
 
-> *[Paste your final syntactic trees here — one for each accepted sentence, showing the full
-> derivation using the Stage 3 grammar with all prime non-terminals visible.]*
-
-**Note on particle ordering:** The Stage 2 grammar used `VP → VP Particle` (particle after verb)
-to demonstrate left recursion. In the final implementation, particles appear before the verb
-(*sedang membaca*, not *membaca sedang*), which is linguistically correct in Indonesian (Sneddon,
-1996, Chapters 2–4). The NLTK implementation reflects this ordering.
+> *[Paste your syntactic tree diagrams here — one for each accepted derivation above, showing
+> all intermediate non-terminals including S_atau_A and S_dan_A.]*
 
 ---
 

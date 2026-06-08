@@ -1,3 +1,5 @@
+# grammar.py — defines the grammar, parser, and tokenizer
+
 import nltk
 from nltk import CFG
 

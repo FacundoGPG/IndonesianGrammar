@@ -237,6 +237,8 @@ does not change the language recognized by the grammar.
 | `saya makan nasi dan dia minum air atau mereka melihat buku .` | dan binds before atau. |
 | `saya makan nasi dan dia minum air dan kami membaca buku .` | Three clauses with dan. |
 
+<img width="1836" height="1142" alt="test_correct_grammar" src="https://github.com/user-attachments/assets/92f2e77c-9b85-406c-be5f-955d9d68f8cc" />
+
 ### Sentences rejected by the grammar
 
 | Sentence | Reason |
@@ -253,6 +255,8 @@ does not change the language recognized by the grammar.
 | `saya .` | No verb |
 | `makan .` | No subject |
 | `saya makan nasi . .` | Double period |
+
+<img width="313" height="218" alt="test_incorrect_grammar" src="https://github.com/user-attachments/assets/fa747edb-80ab-4d6b-91eb-63ea1d588c5d" />
 
 ---
 

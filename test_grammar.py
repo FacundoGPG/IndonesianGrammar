@@ -1,3 +1,5 @@
+# test_grammar.py — interactive interface for testing the parser
+
 from grammar import parse_sentence
 
 print("────────────────────────────────────")

@@ -18,7 +18,7 @@ while True:
         print("\n ACCEPTED\n")
         print("Parse tree:\n")
 
-        # print first tree (grammar is unambiguous)
+        # print first tree only - grammar is unambiguous so one tree is enough
         trees[0].pretty_print()
 
     else:

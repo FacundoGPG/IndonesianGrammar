@@ -24,15 +24,16 @@ Particle -> 'sudah' | 'sedang' | 'akan'
 Conj -> 'dan' | 'atau'
 """
 
+# Load grammar and initialize the chart parser
 grammar = CFG.fromstring(GRAMMAR_STRING)
 parser = nltk.ChartParser(grammar)
 
 
 def tokenize(sentence: str):
     """
-    Very simple tokenizer:
-    - lowercase
-    - ensures '.' is separate
+    Splits the sentence into a list of tokens.
+    Lowercases the input and ensures '.' is treated as a separate token.
+    Example: "saya makan nasi." -> ['saya', 'makan', 'nasi', '.']
     """
     sentence = sentence.strip().lower()
     if sentence.endswith('.'):
@@ -42,8 +43,8 @@ def tokenize(sentence: str):
 
 def parse_sentence(sentence: str):
     """
-    Returns list of parse trees.
-    Empty list = rejected sentence.
+    Tokenizes the sentence and attempts to parse it against the grammar.
+    Returns a list of parse trees. Empty list means the sentence is rejected.
     """
     tokens = tokenize(sentence)
     return list(parser.parse(tokens))
